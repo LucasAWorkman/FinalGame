@@ -590,8 +590,8 @@ class Game(simpleGE.Scene):
         self.angel = "copycat"
         
         self.cpuDecision = simpleGE.Label()
-        self.cpuDecision.center = (450, 100)
-        self.cpuDecision.size = (120,80)
+        self.cpuDecision.center = (500, 50)
+        self.cpuDecision.size = (225,80)
         self.cpuDecision.text = f"CPU played {self.whatdidcpudo}"
         
         self.cardsinDeck = simpleGE.Label()
@@ -641,10 +641,18 @@ class Game(simpleGE.Scene):
 }
 
     def process(self):
+        self.cpuDecision.text = f"CPU played {self.whatdidcpudo}"
         self.CPUlistLen = len(self.CPUlist)
         # again, i know this is very unoptimized and laggy, but best i could do with my knowledge
         # the lag is because all of the code i have inside of process but its necessary to constantly update
         shuffle_cards = [self.shuffleCard1, self.shuffleCard2, self.shuffleCard3, self.shuffleCard4, self.shuffleCard5]
+        angel_cards = [self.angelCard1, self.angelCard2, self.angelCard3, self.angelCard4, self.angelCard5]
+        arson_cards = [self.arsonCard1, self.arsonCard2, self.arsonCard3, self.arsonCard4, self.arsonCard5]
+        bottomlayer_cards = [self.bottomlayerCard1, self.bottomlayerCard2, self.bottomlayerCard3, self.bottomlayerCard4, self.bottomlayerCard5]
+        mine_cards = [self.mineCard1, self.mineCard2, self.mineCard3, self.mineCard4, self.mineCard5]
+        seeingeye_cards = [self.seeingeyeCard1, self.seeingeyeCard2, self.seeingeyeCard3, self.seeingeyeCard4, self.seeingeyeCard5]
+        copycat_cards = [self.copycatCard1, self.copycatCard2, self.copycatCard3, self.copycatCard4, self.copycatCard5]
+
         all_cards = [card for cards in self.card_data.values() for card in cards]
 
         for card in all_cards:
@@ -663,25 +671,77 @@ class Game(simpleGE.Scene):
 
 
                 # this was by far the hardest thing ive had to code, it took me quite a while to figure out positioning with this as you can only have one sprite on the screen per time so i couldnt use the same sprite aka 2 cards per sprite
+
         if self.Turn:
-            for item in self.PlayerList:
-                print(item)
+
             
             if self.deckBtn.clicked:
                 self.cards -= 1
                 self.cardsinDeck.text = f"Cards In Deck: {self.cards}"
-                for item in self.deckList:
-                    print(item)
                 self.PlayerList.append(self.deckList[0])
                 self.deckList.pop(0)
-                
-                self.Turn = False
+                if "hitman" in self.PlayerList:
+                    
+                    if "angel" in self.PlayerList:
+                        self.PlayerList.remove("angel")
+                        self.PlayerList.remove("hitman")
+                        print("removed angel for hitman")
+                        self.Turn = False
+                    else:
+                        print("you lost")
+                        instructions = Instructions()
+                        self.stop()
+                        instructions.start()
+                else:
+                    
+                    self.Turn = False
             for card in shuffle_cards:
                 if card.clicked:
                     random.shuffle(self.deckList)
                     if "shuffle" in self.PlayerList:
                         self.PlayerList.remove("shuffle") 
                     self.Turn = False
+                    break
+            for card in arson_cards:
+                if card.clicked:
+                    self.randomchoice = random.choice(self.CPUlist)
+                    self.CPUlist.remove(self.randomchoice)
+                    if "arson" in self.PlayerList:
+                        self.PlayerList.remove("arson")  
+                    self.Turn = False
+                    break
+            for card in bottomlayer_cards:
+                if card.clicked:
+                    self.PlayerList.append(self.deckList[-1])
+                    self.deckList.pop(-1)
+                    if "bottomlayer" in self.PlayerList:
+                        self.PlayerList.remove("bottomlayer")
+                    self.Turn = False
+                    break
+            for card in mine_cards:
+                if card.clicked:
+                    self.randomchoice = random.choice(self.CPUlist)
+                    self.PlayerList.append(self.randomchoice)
+                    self.CPUlist.remove(self.randomchoice)
+                    if "mine" in self.PlayerList:
+                        self.PlayerList.remove("mine")
+                    self.Turn = False
+                    break
+            for card in seeingeye_cards:
+                if card.clicked:
+                    first, second, third = self.deckList[0], self.deckList[1], self.deckList[2]
+                    print(f"first card",{first}, " second card", {second}, " third card", {third})
+                    if "seeingeye" in self.PlayerList:
+                        self.PlayerList.remove("seeingeye")
+                    self.Turn = False
+                    break
+            for card in copycat_cards:
+                if card.clicked:
+                    self.PlayerList.append(self.CPUlist[-1])
+                    if "copycat" in self.PlayerList:
+                        self.PlayerList.remove("copycat")
+                    self.Turn = False
+                    break
         elif not self.Turn:
                 self.cardsinDeck.text = f"Cards In Deck: {self.cards}"
                 self.cpuChoice = random.randint(1,2)
@@ -700,6 +760,7 @@ class Game(simpleGE.Scene):
                     self.cpuText.text = f"Cards: {self.CPUlistLen}"
                     self.cards -= 1
                     self.cardsinDeck.text = f"Cards In Deck: {self.cards}"
+                    self.whatdidcpudo = "draw"
                     for card in self.CPUlist:
                         if "hitman" == card:
                             if "angel" == card:
@@ -715,10 +776,7 @@ class Game(simpleGE.Scene):
                     
                 elif self.cpuChoice == 2:
                     self.playedCard = random.choice(self.CPUlist) 
-                    if self.playedCard == "angel":
-                        self.playedCard = random.choice(self.CPUlist)
-                        self.whatdidcpudo = "angel"
-                    elif self.playedCard == "arson":
+                    if self.playedCard == "arson":
                         self.chosen = random.choice(self.PlayerList)
                         self.PlayerList.remove(self.chosen)
                         self.whatdidcpudo = "arson"
@@ -734,6 +792,9 @@ class Game(simpleGE.Scene):
                     elif self.playedCard == "shuffle":
                         random.shuffle(self.deckList)
                         self.whatdidcpudo = "shuffle"
+                    elif self.playedCard == "copycat":
+                        self.CPUlist.append(self.PlayerList[-1])
+                        self.whatdidcpudo = "copycat"
                     self.cpuText.text = f"Cards: {self.CPUlistLen}"
                     self.Turn = True
         if self.cards <= 10: # this is a check to make sure there wont be more angels than hitmans so the game can end with a loser
