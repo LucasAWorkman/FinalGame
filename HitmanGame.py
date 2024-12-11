@@ -2,6 +2,10 @@ import pygame, simpleGE, random, time
 
 # to start of this is VERY unoptimized as i couldnt figure out how to clone a sprite to use for a card twice at a time
 
+# better instructions, if you dont have angel card and draw hitman you lose
+# for seeingeye card my intention was to make 3 cards and have their images change to the image of the 3 cards but i did not have time to do that so its prints for now
+# same for an ending screen, instead it prints the result and goes to instructions scene
+
 class Instructions(simpleGE.Scene):
     def __init__(self):
         super().__init__()
